@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  kestra:
+    image: kestra/kestra:latest
+    command: server standalone --worker-thread=128
+    ports:
+      - "8080:8080"
+    environment:
+      KESTRA_CONFIGURATION: |
+        kestra:
+          server:
+            basic-auth:
+              enabled: false
+          repository:
+            type: h2
+          queue:
+            type: h2
+          storage:
+            type: local
+            local:
+              base-path: "/app/storage"
+    volumes:
+      - ./flows:/app/flows
+      - kestra_data:/app/storage
+
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: kestra
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: k3str4
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  kestra_data:

@@ -1,0 +1,12 @@
+id: test-flow
+namespace: company.team
+
+tasks:
+  - id: hello
+    type: io.kestra.plugin.core.log.Log
+    message: "Hello from webhook! Error: {{ trigger.body.error ?? 'No error provided' }}"
+
+triggers:
+  - id: webhook_trigger
+    type: io.kestra.plugin.core.trigger.Webhook
+    key: "mysecretkey"

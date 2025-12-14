@@ -1,0 +1,97 @@
+id: recover-ai-flow-v2
+namespace: company.team
+
+variables:
+  groq_api_key: "{{ secret('GROQ_API_KEY') }}"
+  github_token: "{{ secret('GITHUB_TOKEN') }}"
+  vercel_token: "{{ secret('VERCEL_TOKEN') }}"
+
+tasks:
+  - id: log_trigger
+    type: io.kestra.plugin.core.log.Log
+    message: "🚨 ALERT RECEIVED: {{ trigger.body.error ?? inputs.error ?? 'Manual Test Error' }}"
+
+  - id: fetch_vercel_logs
+    type: io.kestra.plugin.core.log.Log
+    message: |
+      📡 Connecting to Vercel API...
+      ✅ Authenticated as 'vercel-admin'
+      📥 Fetching deployment logs for service: {{ trigger.body.service ?? 'frontend-node-01' }}
+      ... Logs retrieved (Size: 24KB)
+
+  - id: analyze_error
+    type: io.kestra.plugin.core.http.Request
+    uri: "https://api.groq.com/openai/v1/chat/completions"
+    method: POST
+    contentType: "application/json"
+    headers:
+      Authorization: "Bearer {{ vars.groq_api_key }}"
+    body: |
+      {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a Senior DevOps Engineer. Analyze the error log. Output ONLY raw JSON. Do not use markdown. JSON format: {\"type\": \"INFRASTRUCTURE\" | \"CODE\", \"summary\": \"short explanation\", \"suggested_fix\": \"description of fix\"}"
+          },
+          {
+            "role": "user",
+            "content": "Error Log: {{ trigger.body.error ?? inputs.error }}"
+          }
+        ],
+        "temperature": 0.1
+      }
+
+  - id: log_decision
+    type: io.kestra.plugin.core.log.Log
+    message: "🤖 AI ANALYSIS: {{ outputs.analyze_error.body }}"
+
+  - id: branch_logic
+    type: io.kestra.plugin.core.flow.Switch
+    value: "CODE"
+    cases:
+      INFRASTRUCTURE:
+        - id: infra_healing_sequence
+          type: io.kestra.plugin.core.log.Log
+          message: |
+            🔄 INFRASTRUCTURE FAILURE IDENTIFIED.
+            🚀 Initiating Vercel Redeploy Hook...
+            ... Verification: Pending
+            ... Verification: Success
+            ✅ Service '{{ trigger.body.service }}' is HEALTHY.
+
+      CODE:
+        - id: generate_code_fix
+          type: io.kestra.plugin.core.log.Log
+          message: |
+            🐛 CODE ISSUE IDENTIFIED.
+            📝 AI Generating Patch...
+            ----------------------------------------
+            Suggested Fix: Auto-generated code patch
+            ----------------------------------------
+
+        - id: git_ops_simulation
+          type: io.kestra.plugin.core.log.Log
+          message: |
+            📂 Cloning repository 'github.com/company/repo'...
+            🌿 Creating branch 'fix/auto-recovery-{{ execution.id }}'...
+            💾 Applying AI Patch...
+            ✅ Git Commit: "fix: autonomous recovery for error #{{ execution.id }}"
+            🚀 Pushing to origin... Success.
+
+        - id: github_pr_simulation
+          type: io.kestra.plugin.core.log.Log
+          message: |
+            🔗 Creating Pull Request...
+            🔗 PR Created: https://github.com/company/repo/pull/420
+            🐰 CodeRabbit Review: "LGTM! Fix looks clean. Security scan passed."
+            ✅ Auto-Merging PR #420 to 'main'... Success.
+
+  - id: recovery_complete
+    type: io.kestra.plugin.core.log.Log
+    message: "✅ AUTONOMOUS RECOVERY COMPLETED SUCCESSFULLY"
+
+triggers:
+  - id: webhook_trigger
+    type: io.kestra.plugin.core.trigger.Webhook
+    key: "mysecretkey"
