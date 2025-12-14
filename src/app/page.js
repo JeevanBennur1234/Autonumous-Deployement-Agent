@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import ClientTime from '../components/ClientTime';
 
 export default function Home() {
   const [logs, setLogs] = useState([]);
@@ -7,10 +8,11 @@ export default function Home() {
   const [statusMessage, setStatusMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [systemStatus, setSystemStatus] = useState('online');
+
   const [stats, setStats] = useState({
     totalRecoveries: 0,
-    uptime: '99.9%',
-    avgResponseTime: '1.2s'
+    uptime: '99.99%',
+    avgResponseTime: '0.8s'
   });
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export default function Home() {
       });
 
       if (response.ok) {
-        setStatusMessage('Crash simulated successfully. Auto-recovery initiated.');
+        setStatusMessage('Recovery initiated.');
         setStats(prev => ({ ...prev, totalRecoveries: prev.totalRecoveries + 1 }));
         const data = await response.json();
         if (data.logs) {
@@ -89,7 +91,7 @@ export default function Home() {
           setLogs(prev => [...newLogs.slice(0, 5), ...prev].slice(0, 10));
         }
       } else {
-        setStatusMessage('Crash simulation failed');
+        setStatusMessage('Simulation failed');
       }
 
       setTimeout(() => setStatusMessage(''), 5000);
@@ -103,322 +105,252 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
-      {/* Subtle grid background */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]"></div>
-
-      {/* Animated gradient orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+    <div className="min-h-screen bg-[#0B1120] relative overflow-hidden selection:bg-blue-500/30">
+      
+      {/* Background Ambience */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[120px] mix-blend-screen animate-blob"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[120px] mix-blend-screen animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-indigo-500/20 rounded-full blur-[120px] mix-blend-screen animate-blob animation-delay-4000"></div>
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-6 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+        
         {/* Header */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <header className="mb-12 flex items-center justify-between animate-fade-in">
+          <div className="flex items-center space-x-4">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-blue-500 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
+              <div className="relative w-10 h-10 bg-[#0F172A] border border-white/10 rounded-xl flex items-center justify-center shadow-xl">
+                <svg className="w-4 h-4 text-blue-400" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">
-                  RecoverAI Platform
-                </h1>
-                <p className="text-sm text-slate-400">Autonomous Deployment Agent</p>
-              </div>
             </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+                RecoverAI <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">BETA</span>
+              </h1>
+              <p className="text-slate-400 text-sm">Autonomous Deployment Sentinel</p>
+            </div>
+          </div>
 
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                <div className={`w-2 h-2 rounded-full ${
-                  systemStatus === 'online' ? 'bg-emerald-400' : 'bg-blue-400'
-                } animate-pulse`}></div>
-                <span className="text-sm text-slate-300 font-medium">
-                  {systemStatus === 'online' ? 'All Systems Operational' : 'Monitoring Active'}
-                </span>
-              </div>
+          <div className="hidden md:flex items-center space-x-6">
+            <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 backdrop-blur-md">
+              <div className={`w-2 h-2 rounded-full ${systemStatus === 'online' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-amber-400'} transition-all duration-500`}></div>
+              <span className="text-xs font-medium text-slate-300">
+                {systemStatus === 'online' ? 'System Operational' : 'Monitoring Network'}
+              </span>
+            </div>
+            <div className="h-8 w-[1px] bg-white/10"></div>
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Server Time</p>
+              <p className="text-sm font-mono text-slate-300"><ClientTime /></p>
             </div>
           </div>
         </header>
 
-        {/* Stats Dashboard */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-700/50 hover:border-slate-600/50 transition-colors">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-400 text-sm font-medium">System Status</span>
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-            </div>
-            <p className="text-2xl font-bold text-white">Operational</p>
-            <p className="text-xs text-slate-500 mt-1">All services running</p>
-          </div>
-
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-700/50 hover:border-slate-600/50 transition-colors">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-400 text-sm font-medium">Recoveries</span>
-              <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-              </svg>
-            </div>
-            <p className="text-2xl font-bold text-white">{stats.totalRecoveries}</p>
-            <p className="text-xs text-slate-500 mt-1">Total automated fixes</p>
-          </div>
-
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-700/50 hover:border-slate-600/50 transition-colors">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-400 text-sm font-medium">Uptime</span>
-              <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <p className="text-2xl font-bold text-white">{stats.uptime}</p>
-            <p className="text-xs text-slate-500 mt-1">Last 30 days</p>
-          </div>
-
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-700/50 hover:border-slate-600/50 transition-colors">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-400 text-sm font-medium">Avg Response</span>
-              <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <p className="text-2xl font-bold text-white">{stats.avgResponseTime}</p>
-            <p className="text-xs text-slate-500 mt-1">Detection to fix</p>
-          </div>
-        </div>
-
-        {/* Main Dashboard */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl overflow-hidden">
-          <div className="border-b border-slate-700/50 bg-slate-800/50 px-6 py-4">
-            <h2 className="text-xl font-semibold text-white">Control Center</h2>
-            <p className="text-sm text-slate-400 mt-1">Monitor and test autonomous error recovery</p>
-          </div>
-
-          <div className="p-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Error Input Section */}
-              <div className="space-y-5">
-                <div className="bg-slate-800/40 rounded-xl p-6 border border-slate-700/50">
-                  <div className="flex items-center mb-4">
-                    <div className="w-8 h-8 bg-red-500/10 rounded-lg flex items-center justify-center mr-3 border border-red-500/20">
-                      <svg className="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">Error Injection</h3>
-                      <p className="text-xs text-slate-400">Trigger AI-powered recovery</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Error Description
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder="e.g., Database connection timeout, API 500 error..."
-                          className="w-full bg-slate-900/50 text-white px-4 py-3 rounded-lg border border-slate-600/50 placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                          value={errorMessage}
-                          onChange={(e) => setErrorMessage(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && handleSendError()}
-                        />
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                          <span className="text-slate-500 text-xs">{errorMessage.length}/500</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={handleSendError}
-                        disabled={isLoading || !errorMessage.trim()}
-                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:text-slate-500 text-white py-3 px-4 rounded-lg transition-all font-medium shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 disabled:shadow-none flex items-center justify-center space-x-2"
-                      >
-                        {isLoading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Processing</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                            <span>Send Error</span>
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        onClick={handleSimulateCrash}
-                        disabled={isLoading}
-                        className="bg-red-600 hover:bg-red-700 disabled:bg-slate-700 disabled:text-slate-500 text-white py-3 px-4 rounded-lg transition-all font-medium shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30 disabled:shadow-none flex items-center justify-center space-x-2"
-                      >
-                        {isLoading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Running</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <span>Simulate</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {statusMessage && (
-                      <div className={`p-3 rounded-lg border transition-all duration-300 ${
-                        statusMessage.includes('success') || statusMessage.includes('successfully')
-                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                          : statusMessage.includes('failed') || statusMessage.includes('Failed')
-                          ? 'bg-red-500/10 border-red-500/30 text-red-300'
-                          : 'bg-blue-500/10 border-blue-500/30 text-blue-300'
-                      }`}>
-                        <div className="flex items-center text-sm">
-                          <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse mr-2"></div>
-                          {statusMessage}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+          {[ 
+            { label: 'System Status', value: 'Active', sub: 'Monitoring 12 services', color: 'emerald', icon: (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            )},
+            { label: 'Total Recoveries', value: stats.totalRecoveries, sub: 'Autonomous fixes', color: 'blue', icon: (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            )},
+            { label: 'Uptime', value: stats.uptime, sub: 'Last 30 days', color: 'indigo', icon: (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            )},
+            { label: 'Avg Response', value: stats.avgResponseTime, sub: 'Detection speed', color: 'purple', icon: (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            )}
+          ].map((stat, i) => (
+            <div key={i} className={`glass-panel p-5 rounded-xl animate-fade-in delay-${(i+1)*100} group hover:bg-white/[0.03] transition-all duration-300`}>
+              <div className="flex justify-between items-start mb-4">
+                <div className={`p-2 rounded-lg bg-${stat.color}-500/10 text-${stat.color}-400 group-hover:scale-110 transition-transform duration-300`}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {stat.icon}
+                  </svg>
                 </div>
-
-                {/* Service Status */}
-                <div className="bg-slate-800/40 rounded-xl p-5 border border-slate-700/50">
-                  <h4 className="text-sm font-semibold text-white mb-3">Active Services</h4>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'Kestra Engine', status: 'Running', color: 'emerald' },
-                      { name: 'Groq AI Analysis', status: 'Active', color: 'blue' },
-                      { name: 'Auto-Recovery', status: 'Enabled', color: 'cyan' }
-                    ].map((service, idx) => (
-                      <div key={idx} className="flex items-center justify-between py-2 px-3 bg-slate-900/50 rounded-lg hover:bg-slate-900/70 transition-colors">
-                        <div className="flex items-center space-x-2">
-                          <div className={`w-2 h-2 bg-${service.color}-400 rounded-full animate-pulse`}></div>
-                          <span className="text-sm text-slate-300">{service.name}</span>
-                        </div>
-                        <span className={`text-xs font-medium text-${service.color}-400`}>{service.status}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                {i === 0 && (
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                )}
               </div>
-
-              {/* Activity Log Section */}
-              <div className="space-y-5">
-                <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 overflow-hidden">
-                  <div className="border-b border-slate-700/50 bg-slate-900/50 px-5 py-3 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <h3 className="text-base font-semibold text-white">Activity Monitor</h3>
-                    </div>
-                    <span className="text-xs text-slate-500 font-mono">Live Feed</span>
-                  </div>
-
-                  <div className="p-4">
-                    <div className="space-y-2 max-h-[420px] overflow-y-auto custom-scrollbar">
-                      {logs.length === 0 ? (
-                        <div className="text-center py-12 text-slate-500">
-                          <svg className="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                          </svg>
-                          <p className="text-sm">Waiting for system events</p>
-                          <p className="text-xs mt-1">Trigger an error to see activity</p>
-                        </div>
-                      ) : (
-                        logs.map((log, index) => (
-                          <div key={index} className="group bg-slate-900/50 rounded-lg p-3 border border-slate-700/30 hover:border-slate-600/50 hover:bg-slate-900/70 transition-all duration-200">
-                            <div className="flex items-start space-x-3">
-                              <div className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
-                                log.type === 'success' ? 'bg-emerald-400' :
-                                log.type === 'error' ? 'bg-red-400' : 'bg-blue-400'
-                              } animate-pulse`}></div>
-                              <div className="flex-1 min-w-0">
-                                <p className={`text-sm leading-relaxed ${
-                                  log.type === 'success' ? 'text-emerald-300' :
-                                  log.type === 'error' ? 'text-red-300' : 'text-blue-300'
-                                }`}>
-                                  {log.message}
-                                </p>
-                                <p className="text-slate-500 text-xs mt-1 font-mono">{log.time}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold text-white tracking-tight">{stat.value}</h3>
+                <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">{stat.label}</p>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Features Grid */}
-        <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            {
-              icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
-              title: 'Error Detection',
-              desc: 'Real-time monitoring and intelligent alert processing',
-              color: 'red'
-            },
-            {
-              icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>,
-              title: 'AI Analysis',
-              desc: 'Advanced error classification using machine learning',
-              color: 'blue'
-            },
-            {
-              icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
-              title: 'Auto-Healing',
-              desc: 'Automated infrastructure and code remediation',
-              color: 'emerald'
-            },
-            {
-              icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-              title: 'Recovery',
-              desc: 'Complete system restoration and performance monitoring',
-              color: 'cyan'
-            }
-          ].map((feature, index) => (
-            <div key={index} className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-5 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300 hover:bg-slate-800/50">
-              <div className={`w-10 h-10 bg-${feature.color}-500/10 rounded-lg flex items-center justify-center text-${feature.color}-400 mb-3 border border-${feature.color}-500/20`}>
-                {feature.icon}
+              <div className="mt-3 pt-3 border-t border-white/5">
+                <p className="text-xs text-slate-500 truncate">{stat.sub}</p>
               </div>
-              <h3 className="text-white font-semibold text-base mb-1.5">{feature.title}</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">{feature.desc}</p>
             </div>
           ))}
         </div>
 
-        {/* Footer */}
-        <footer className="mt-8 pt-6 border-t border-slate-800/50">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-4 text-slate-500">
-              <span>RecoverAI Platform v1.0</span>
-              <span className="text-slate-700">|</span>
-              <span>Powered by Groq AI & Kestra</span>
+        {/* Main Dashboard Panel */}
+        <div className="glass-panel rounded-2xl overflow-hidden animate-fade-in delay-400 shadow-2xl shadow-black/40">
+          
+          {/* Panel Header */}
+          <div className="bg-white/[0.02] border-b border-white/5 px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-2 w-2 rounded-full bg-red-500/50"></div>
+              <div className="h-2 w-2 rounded-full bg-yellow-500/50"></div>
+              <div className="h-2 w-2 rounded-full bg-green-500/50"></div>
+              <span className="ml-2 text-sm font-medium text-slate-300">Control Center</span>
             </div>
-            <div className="flex items-center space-x-2 text-slate-500">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Last updated: {new Date().toLocaleString()}</span>
+            <div className="text-xs font-mono text-slate-500">v1.0.2-stable</div>
+          </div>
+
+          <div className="p-6 md:p-8">
+            <div className="grid lg:grid-cols-12 gap-8">
+              
+              {/* Left Column: Controls */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* Input Area */}
+                <div className="bg-[#0F172A]/50 rounded-xl p-1 border border-white/5">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      className="w-full bg-[#0F172A] text-slate-200 px-5 py-4 rounded-lg border border-white/5 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-600 font-mono text-sm"
+                      placeholder="Describe the system error (e.g., 'DB Connection Timeout')..."
+                      value={errorMessage}
+                      onChange={(e) => setErrorMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendError()}
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                       <span className="text-[10px] text-slate-600 border border-slate-700 rounded px-1.5 py-0.5">RETURN</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={handleSendError}
+                    disabled={isLoading || !errorMessage.trim()}
+                    className="relative group overflow-hidden rounded-xl bg-blue-600 p-[1px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="relative bg-[#0F172A] hover:bg-blue-600/10 h-full rounded-[10px] px-6 py-4 transition-all group-hover:bg-[#0F172A]/80">
+                      <div className="flex items-center justify-center gap-3">
+                        {isLoading ? (
+                           <svg className="animate-spin h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                           </svg>
+                        ) : (
+                          <svg className="w-4 h-4 text-blue-400 group-hover:text-white transition-colors" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                        )}
+                        <span className="font-semibold text-blue-100 group-hover:text-white">Inject Error</span>
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={handleSimulateCrash}
+                    disabled={isLoading}
+                    className="relative group overflow-hidden rounded-xl bg-gradient-to-tr from-rose-600 to-orange-600 p-[1px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="absolute inset-0 bg-white/20 group-hover:opacity-0 transition-opacity"></div>
+                    <div className="relative bg-gradient-to-tr from-rose-600 to-orange-600 h-full rounded-[10px] px-6 py-4 flex items-center justify-center gap-3 group-active:scale-[0.98] transition-transform">
+                       <svg className="w-4 h-4 text-white" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                       </svg>
+                       <span className="font-bold text-white tracking-wide">SIMULATE CRASH</span>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Active Services List */}
+                <div className="space-y-3 pt-4">
+                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Live Services</h4>
+                  {[ 
+                    { name: 'Kestra Workflow Engine', status: 'Running', color: 'emerald' },
+                    { name: 'Groq AI Analysis', status: 'Connected', color: 'blue' },
+                    { name: 'Auto-Recovery Agent', status: 'Standby', color: 'purple' }
+                  ].map((service, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:border-white/10 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-1.5 h-1.5 rounded-full bg-${service.color}-400 shadow-[0_0_8px_rgba(var(--${service.color}-500),0.5)]`}></div>
+                        <span className="text-sm text-slate-300">{service.name}</span>
+                      </div>
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full bg-${service.color}-500/10 text-${service.color}-400 border border-${service.color}-500/20`}>
+                        {service.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column: Terminal/Logs */}
+              <div className="lg:col-span-5 flex flex-col h-full min-h-[400px]">
+                <div className="flex-1 bg-[#090E1A] rounded-xl border border-white/10 overflow-hidden flex flex-col shadow-inner">
+                  <div className="px-4 py-3 bg-white/[0.02] border-b border-white/5 flex items-center justify-between">
+                    <span className="text-xs font-mono text-slate-400 flex items-center gap-2">
+                      <svg className="w-3 h-3" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3" /></svg>
+                      SYSTEM_LOGS
+                    </span>
+                    <div className="flex gap-1.5">
+                       <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                       <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 p-4 overflow-y-auto custom-scrollbar font-mono text-sm space-y-3">
+                    {logs.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-2 opacity-50">
+                        <svg className="w-8 h-8" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                        <span className="text-xs">Awaiting events...</span>
+                      </div>
+                    ) : (
+                      logs.map((log, i) => (
+                        <div key={i} className={`animate-fade-in text-xs leading-relaxed break-all ${ 
+                          log.type === 'error' ? 'text-rose-400' : 
+                          log.type === 'success' ? 'text-emerald-400' : 'text-blue-300'
+                        }`}> 
+                          <span className="opacity-30 mr-2">[{log.time}]</span>
+                          {log.message}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  
+                  {statusMessage && (
+                    <div className="px-4 py-2 bg-white/[0.02] border-t border-white/5 text-[10px] text-slate-400 flex items-center gap-2">
+                       <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                       {statusMessage}
+                    </div>
+                  )}
+                </div>
+              </div>
+
             </div>
           </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-12 text-center border-t border-white/5 pt-8 pb-4">
+           <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-xs text-slate-600">
+             <span>&copy; 2024 RecoverAI Platform</span>
+             <span className="hidden md:inline text-slate-800">•</span>
+             <span className="flex items-center gap-1">
+               Powered by 
+               <span className="text-slate-500 font-medium">Groq LLaMA 3</span> 
+               & 
+               <span className="text-slate-500 font-medium">Kestra</span>
+             </span>
+           </div>
         </footer>
+
       </div>
     </div>
   );
